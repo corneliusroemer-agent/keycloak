@@ -13,6 +13,7 @@ import org.keycloak.theme.ResourceLoader;
 import org.apache.commons.io.IOUtils;
 import org.jboss.logging.Logger;
 
+import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class GzipResourceEncodingProvider implements ResourceEncodingProvider {
@@ -66,10 +67,11 @@ public class GzipResourceEncodingProvider implements ResourceEncodingProvider {
         }
 
         try {
-            Files.move(tmpEncodedFile.toPath(), target.toPath(), REPLACE_EXISTING);
+            Files.move(tmpEncodedFile.toPath(), target.toPath(), REPLACE_EXISTING, ATOMIC_MOVE);
             return target;
         } catch (IOException io) {
             logger.warnf(io, "Fail to move temporary file to %s", target.toString());
+            Files.deleteIfExists(tmpEncodedFile.toPath());
             return null;
         }
     }
